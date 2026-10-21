@@ -77,12 +77,12 @@ function createReviewService(ctx) {
     for (const [sid, rs] of Object.entries(by)) { const s = summary(rs, C0); serviceRatings[sid] = { avg: s.avg, count: s.count }; }
     return { features: f, rating: summary(rows, C0), serviceRatings };
   }
-  function publicList(serviceId, offset, limit) {
+  function publicList(serviceId, offset, limit, resourceId) {
     const C0 = C(); off(C0.reviewPublic.on, '门店未开启评价展示');
-    const sid = serviceId ? +serviceId : null;
+    const sid = serviceId ? +serviceId : null, rid = resourceId ? +resourceId : null;
     limit = Math.min(Math.max(+limit || 10, 1), 30); offset = Math.max(+offset || 0, 0);
-    const items = repo.listPublicReviews({ serviceId: sid, limit: limit + 1, offset });
-    return { summary: summary(repo.reviewRows({ serviceId: sid, publicOnly: true }), C0), items: items.slice(0, limit).map(r => publicDto(r, C0)), hasMore: items.length > limit };
+    const items = repo.listPublicReviews({ serviceId: sid, resourceId: rid, limit: limit + 1, offset });
+    return { summary: summary(repo.reviewRows({ serviceId: sid, resourceId: rid, publicOnly: true }), C0), items: items.slice(0, limit).map(r => publicDto(r, C0)), hasMore: items.length > limit };
   }
 
   // ---- 顾客：评价 ----

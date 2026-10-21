@@ -54,10 +54,10 @@ function createRepo(db) {
     getReview: id => q(`SELECT r.*, c.phone, b.service_name, b.date, b.code, b.start_min FROM reviews r JOIN customers c ON c.id=r.customer_id JOIN bookings b ON b.id=r.booking_id WHERE r.id=?`).get(id),
     reviewsByBookings: ids => ids.length ? q(`SELECT * FROM reviews WHERE booking_id IN (${ids.map(() => '?').join(',')})`).all(...ids) : [],
     /** 公开列表：只含 status='public' */
-    listPublicReviews: ({ serviceId, limit, offset }) => q(`SELECT r.*, c.phone, b.service_name FROM reviews r JOIN customers c ON c.id=r.customer_id JOIN bookings b ON b.id=r.booking_id
-      WHERE r.status='public' AND (@sid IS NULL OR r.service_id=@sid) ORDER BY r.created_at DESC LIMIT @limit OFFSET @offset`).all({ sid: serviceId || null, limit: limit || 10, offset: offset || 0 }),
+    listPublicReviews: ({ serviceId, resourceId, limit, offset }) => q(`SELECT r.*, c.phone, b.service_name FROM reviews r JOIN customers c ON c.id=r.customer_id JOIN bookings b ON b.id=r.booking_id
+      WHERE r.status='public' AND (@sid IS NULL OR r.service_id=@sid) AND (@rid IS NULL OR COALESCE(b.resource_id, b.assignee_id)=@rid) ORDER BY r.created_at DESC LIMIT @limit OFFSET @offset`).all({ sid: serviceId || null, rid: resourceId || null, limit: limit || 10, offset: offset || 0 }),
     /** 统计原始数据（publicOnly=true 时排除隐藏/待审核） */
-    reviewRows: ({ serviceId, publicOnly }) => q(`SELECT service_id, stars, tags FROM reviews WHERE (@sid IS NULL OR service_id=@sid) ${publicOnly ? "AND status='public'" : ''}`).all({ sid: serviceId || null }),
+    reviewRows: ({ serviceId, resourceId, publicOnly }) => q(`SELECT r.service_id, r.stars, r.tags FROM reviews r JOIN bookings b ON b.id=r.booking_id WHERE (@sid IS NULL OR r.service_id=@sid) AND (@rid IS NULL OR COALESCE(b.resource_id, b.assignee_id)=@rid) ${publicOnly ? "AND r.status='public'" : ''}`).all({ sid: serviceId || null, rid: resourceId || null }),
     listMerchantReviews: (filter, lowStar) => q(`SELECT r.*, c.phone, b.service_name, b.date, b.code, b.start_min FROM reviews r JOIN customers c ON c.id=r.customer_id JOIN bookings b ON b.id=r.booking_id
       WHERE ${{ unreplied: "r.reply_text IS NULL AND r.status!='hidden'", low: 'r.stars<=@low', pending: "r.status='pending'", hidden: "r.status='hidden'" }[filter] || '1=1'}
       ORDER BY r.created_at DESC LIMIT 200`).all({ low: lowStar }),

@@ -40,7 +40,7 @@ module.exports = async function (app) {
     return { ...info, features: x.features, rating: x.rating, demo: { showSmsCode: cfg.devShowSmsCode, mockPay: cfg.payProvider === 'mock', notice: cfg.demoNotice || '' } };
   });
   // 评价（公开展示）
-  app.get('/reviews', async req => reviews.publicList(req.query.serviceId, req.query.offset, req.query.limit));
+  app.get('/reviews', async req => reviews.publicList(req.query.serviceId, req.query.offset, req.query.limit, req.query.resourceId));
   app.post('/reviews', async (req, reply) => { const r = reviews.createReview(customer(req), req.body || {}, req.ip); reply.code(201); return r; });
   app.put('/reviews/:id', async req => reviews.editReview(customer(req), req.params.id, req.body || {}, req.ip));
   app.post('/me/images', async (req, reply) => { const r = reviews.uploadPhoto(customer(req), req.body, req.ip); reply.code(201); return r; });

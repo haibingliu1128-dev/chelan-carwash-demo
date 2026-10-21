@@ -629,9 +629,9 @@ app.addEventListener('click',function(e){
   case 'back': back();break;
   case 'toast': toast(v);break;
   case 'startBook': S.sel.time=null;S.quote=null;S.tab=X.bookTab||'book';S.stack=[];S.view=X.flow[0];render(true);onEnter(S.view);break;
-  case 'quickBook': if(S.sel.serviceId!==+v){S.sel.resourceId=null;S.sel.addons=[]}S.sel.serviceId=+v;S.sel.time=null;S.quote=null;S.tab=X.bookTab||'book';AV=null;
+  case 'quickBook': if(S.sel.serviceId!==+v){if(!(X.keepRes&&X.keepRes(+v)))S.sel.resourceId=null;S.sel.addons=[]}S.sel.serviceId=+v;S.sel.time=null;S.quote=null;S.tab=X.bookTab||'book';AV=null;
     var qi=X.flow.indexOf('book'),qv=X.quickTo?X.quickTo():(qi===0?X.flow[1]:X.flow[0]);S.stack=X.flow.slice(0,X.flow.indexOf(qv));S.view=qv;render(true);onEnter(S.view);break;
-  case 'pick': if(S.sel.serviceId!==+v){S.sel.serviceId=+v;S.sel.time=null;S.sel.resourceId=null;S.sel.addons=[];S.quote=null;AV=null}render(false);break;
+  case 'pick': if(S.sel.serviceId!==+v){S.sel.serviceId=+v;S.sel.time=null;if(!(X.keepRes&&X.keepRes(+v)))S.sel.resourceId=null;S.sel.addons=[];S.quote=null;AV=null}render(false);break;
   case 'flowNext': flowNext();break;
   case 'payPick': var pp=v.split('|');S.sel.payMethod=pp[0];S.sel.cardId=pp[1]?+pp[1]:null;render(false);break;
   case 'toTime': go('time');break;
